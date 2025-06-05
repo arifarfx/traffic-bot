@@ -2,9 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const { errorHandler } = require('./src/middleware/errorHandler');
 
 // Load environment variables
 dotenv.config();
@@ -16,31 +13,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
-// Serve static files
-app.use(express.static('public'));
-app.use('/views', express.static('views'));
+// Basic route
+app.get('/', (req, res) => {
+    res.json({
+        status: 'success',
+        message: 'Traffic Bot API is running'
+    });
+});
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.error('MongoDB connection error:', err));
-
-// Routes
-const authRoutes = require('./src/routes/auth');
-const trafficRoutes = require('./src/routes/traffic');
-const settingsRoutes = require('./src/routes/settings');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/traffic', trafficRoutes);
-app.use('/api/settings', settingsRoutes);
-
-// Error handling
-app.use(errorHandler);
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('MongoDB Connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 // Start server
 const PORT = process.env.PORT || 3000;
